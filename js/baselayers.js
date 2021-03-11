@@ -47,7 +47,7 @@ function getCommonBaseLayers(map) {
     }
   );
 
-  var satLayer = L.tileLayer.wms(
+  var labelLayer = L.tileLayer.wms(
     "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
     {
       format: "image/png",
@@ -59,7 +59,7 @@ function getCommonBaseLayers(map) {
     }
   );
 
-  var labelLayer = L.tileLayer.wms(
+  var satLayer = L.tileLayer.wms(
     "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     {
       format: "image/png",
@@ -71,23 +71,39 @@ function getCommonBaseLayers(map) {
     }
   );
 
-  var satGroupLayer = L.layerGroup([labelLayer, satLayer]);
+  var satGroupLayer = L.layerGroup([satLayer, labelLayer]);
   satGroupLayer.options.thumb = "img/satellite.png";
   satGroupLayer.options.displayName = "Satellite";
 
   var terrainLayer = L.tileLayer(
-    "http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png",
+    "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}",
     {
       format: "image/png",
       transparent: true,
-      subdomains: ["a", "b", "c", "d"],
       attribution:
-        'Map tiles by <a href="http://stamen.com/">Stamen Design</a>',
+        'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+        'rest/services/Reference/World_Terrain_Base/MapServer">ArcGIS</a>',
       opacity: 1,
       thumb: "img/terrain.png",
       displayName: "Terrain",
     }
   );
+
+  var labelLayer2 = L.tileLayer.wms(
+    "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+    {
+      format: "image/png",
+      transparent: true,
+      attribution:
+        'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+        'rest/services/Reference/World_Boundaries_and_Places/MapServer">ArcGIS</a>',
+      opacity: 1,
+    }
+  );
+
+  var terrainGroup = L.layerGroup([terrainLayer, labelLayer2]);
+  terrainGroup.options.thumb = "img/terrain.png";
+  terrainGroup.options.displayName = "Terrain";
 
   var deLormeLayer = L.tileLayer.wms(
     "https://server.arcgisonline.com/arcgis/rest/services/Specialty/DeLorme_World_Base_Map/MapServer/tile/{z}/{y}/{x}",
@@ -107,7 +123,7 @@ function getCommonBaseLayers(map) {
     OSM: osmLayer,
     Satellite: satGroupLayer,
     Topo: topoLayer,
-    Terrain: terrainLayer,
+    Terrain: terrainGroup,
     "EMODnet Bathymetry": bathymetryGroupLayer,
     DeLorme: deLormeLayer,
   };

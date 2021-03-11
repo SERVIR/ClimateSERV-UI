@@ -27,6 +27,8 @@ build/
 .env.test.local
 .env.production.local
 *.lock
+*.log
+*.sock
 
 npm-debug.log*
 yarn-debug.log*
