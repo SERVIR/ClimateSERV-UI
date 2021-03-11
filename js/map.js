@@ -1,3 +1,14 @@
+/** Global Variables */
+var active_basemap = "OSM";
+var map = L.map("servirmap", {
+  zoom: 5,
+  fullscreenControl: true,
+  timeDimension: true,
+  timeDimensionControl: true,
+  center: [38.0, 15.0],
+});
+
+/** Page load functions */
 $(function () {
   $("ol.layers").sortable({
     group: "simple_with_animation",
@@ -33,14 +44,8 @@ $(function () {
     },
   });
 });
-var map = L.map("servirmap", {
-  zoom: 5,
-  fullscreenControl: true,
-  timeDimension: true,
-  timeDimensionControl: true,
-  center: [38.0, 15.0],
-});
 
+/** This is just for testing - Will be removed */
 var imerg =
   "https://thredds.servirglobal.net/thredds/wms/Agg/nasa-imerg-late_global_0.1deg_30min.nc4?service=WMS&version=1.3.0&crs=EPSG%3A3857";
 
@@ -60,10 +65,10 @@ var imergTimeLayer = L.timeDimension.layer.wms(imergLayer, {
 });
 
 // Legends
-var heigthLegend = L.control({
+var heightLegend = L.control({
   position: "bottomright",
 });
-heigthLegend.onAdd = function (map) {
+heightLegend.onAdd = function (map) {
   var src =
     ndvi +
     "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=adt&colorscalerange=-0.4,0.4&PALETTE=rainbow&transparent=TRUE";
@@ -118,9 +123,35 @@ map.on("overlayremove", function (eventLayer) {
   }
 });
 
-var baseLayers = getCommonBaseLayers(map); // see baselayers.js
+var baseLayers = getCommonBaseLayers(map); // use baselayers.js to add, remove, or edit
 L.control.layers(baseLayers, overlayMaps).addTo(map);
 var sidebar = L.control.sidebar("sidebar").addTo(map);
+
+//create the basemap thumbnails in the panel
+for (var key of Object.keys(baseLayers)) {
+  var img = $("<img>");
+  img.attr("src", baseLayers[key].options.thumb);
+  img.addClass("basemapbtn");
+  img.attr("alt", baseLayers[key].options.displayName);
+  img.attr("title", baseLayers[key].options.displayName);
+  img.attr("datavalue", key);
+  img.on("click", function (e) {
+    handleBaseMapSwitch($(this)[0].getAttribute("datavalue"));
+  });
+  img.appendTo("#basemap");
+}
+/**
+ *
+ * @param {string} [which] The Key of the basemap
+ *
+ */
+function handleBaseMapSwitch(which) {
+  console.log("active_basemap: " + active_basemap);
+  map.removeLayer(baseLayers[active_basemap]);
+  console.log("which: " + which);
+  active_basemap = which;
+  baseLayers[active_basemap].addTo(map);
+}
 
 imergTimeLayer.addTo(map);
 var visible = true;

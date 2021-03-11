@@ -17,6 +17,10 @@ body {
   margin: 0;
 }
 
+.leaflet-control-layers.leaflet-control {
+  display: none;
+}
+
 .leaflet-bar a,
 leaflet-bar-timecontrol {
   background-color: rgba(0, 60, 136, 0.5);
