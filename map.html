@@ -34,7 +34,6 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
 
-    <style></style>
     <title>ClimateSERV - Map</title>
   </head>
   <body>
@@ -109,114 +108,7 @@
                 ></span>
               </h1>
 
-              <ol class="layers vertical">
-                <li>
-                  <div class="rst__nodeContent" style="left: 44px">
-                    <div style="height: 100%">
-                      <div class="rst__rowWrapper">
-                        <div class="rst__row" style="opacity: 1">
-                          <div class="rst__moveHandle" draggable="true"></div>
-                          <div class="rst__rowContents">
-                            <div class="rst__rowLabel">
-                              <span class="rst__rowTitle">
-                                <input
-                                  type="checkbox"
-                                  id="imerg"
-                                  name="imerg"
-                                  checked
-                                  onchange="toggleLayer(imergTimeLayer)"
-                                />
-                                <label for="imerg" title="IMERG">IMERG</label>
-                                <br /><input
-                                  type="range"
-                                  class="layer-opacity"
-                                  min="0"
-                                  max="1"
-                                  step=".01"
-                                  value="1"
-                                />
-                              </span>
-                            </div>
-                            <div class="rst__rowToolbar"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="rst__nodeContent" style="left: 44px">
-                    <div style="height: 100%">
-                      <div class="rst__rowWrapper">
-                        <div class="rst__row" style="opacity: 1">
-                          <div class="rst__moveHandle" draggable="true"></div>
-                          <div class="rst__rowContents">
-                            <div class="rst__rowLabel">
-                              <span class="rst__rowTitle">
-                                <input
-                                  type="checkbox"
-                                  id="wandvi"
-                                  name="wandvi"
-                                />
-                                <label
-                                  for="wandvi"
-                                  title="West Africa eMODIS NDVI"
-                                  >East Africa eMODIS NDVI</label
-                                >
-                                <br /><input
-                                  type="range"
-                                  class="layer-opacity"
-                                  min="0"
-                                  max="1"
-                                  step=".01"
-                                  value="1"
-                                />
-                              </span>
-                            </div>
-                            <div class="rst__rowToolbar"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="rst__nodeContent" style="left: 44px">
-                    <div style="height: 100%">
-                      <div class="rst__rowWrapper">
-                        <div class="rst__row" style="opacity: 1">
-                          <div class="rst__moveHandle" draggable="true"></div>
-                          <div class="rst__rowContents">
-                            <div class="rst__rowLabel">
-                              <span class="rst__rowTitle">
-                                <input
-                                  type="checkbox"
-                                  id="wandvi"
-                                  name="wandvi"
-                                />
-                                <label
-                                  for="wandvi"
-                                  title="West Africa eMODIS NDVI"
-                                  >South Africa eMODIS NDVI</label
-                                >
-                                <br /><input
-                                  type="range"
-                                  class="layer-opacity"
-                                  min="0"
-                                  max="1"
-                                  step=".01"
-                                  value="1"
-                                />
-                              </span>
-                            </div>
-                            <div class="rst__rowToolbar"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              </ol>
+              <ol class="layers vertical" id="layer-list"></ol>
             </div>
 
             <div class="sidebar-pane" id="chart">
@@ -293,7 +185,8 @@
       type="text/javascript"
       src="https://cdn.jsdelivr.net/npm/iso8601-js-period@0.2.1/iso8601.min.js"
     ></script>
-    <script src="js/baselayers.js"></script>
+    <script src="js/map-layers.js"></script>
+    <script src="js/base-layers.js"></script>
     <script
       type="text/javascript"
       src="js/leaflet.timedimension.min.js"
@@ -301,5 +194,40 @@
     <script src="js/leaflet-sidebar.js"></script>
     <script src="js/map.js"></script>
     <script type="text/javascript"></script>
+    <script id="layersTemplate" type="text/template">
+      <li>
+        <div class="rst__nodeContent" style="left: 44px">
+          <div style="height: 100%">
+            <div class="rst__rowWrapper">
+              <div class="rst__row" style="opacity: 1">
+                <div class="rst__moveHandle" draggable="true"></div>
+                <div class="rst__rowContents">
+                  <div class="rst__rowLabel">
+                    <span class="rst__rowTitle">
+                      <input
+                        type="checkbox"
+                        id="{id}"
+                        name="{id}"
+                        onchange="toggleLayer('{layername}')"
+                      />
+                      <label for="{id}" title="{title}">{title}</label>
+                      <br /><input
+                        type="range"
+                        class="layer-opacity"
+                        min="0"
+                        max="1"
+                        step=".01"
+                        value="1"
+                      />
+                    </span>
+                  </div>
+                  <div class="rst__rowToolbar"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+    </script>
   </body>
 </html>

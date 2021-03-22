@@ -184,6 +184,10 @@ body {
   width: calc(100% + 20px);
 }
 
+.info.legend.leaflet-control {
+  margin-bottom: 20px;
+}
+
 .rst__moveHandle,
 .rst__loadingHandle {
   background: #7eaddb
@@ -1031,7 +1035,7 @@ button[disabled] {
 }
 
 /* Transparent Overlay */
-.loading:before {
+/*.loading:before {
   content: "Testing";
   display: block;
   position: fixed;
@@ -1040,7 +1044,7 @@ button[disabled] {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.4);
-}
+}*/
 
 /* :not(:required) hides these rules from IE9 and below */
 .loading:not(:required) {

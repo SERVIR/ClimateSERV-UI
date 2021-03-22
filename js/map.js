@@ -7,9 +7,11 @@ var map = L.map("servirmap", {
   timeDimensionControl: true,
   center: [38.0, 15.0],
 });
+var overlayMaps = {};
 
 /** Page load functions */
 $(function () {
+  globalLayerArray.forEach(createLayer);
   $("ol.layers").sortable({
     group: "simple_with_animation",
     pullPlaceholder: true,
@@ -45,24 +47,56 @@ $(function () {
   });
 });
 
-/** This is just for testing - Will be removed */
-var imerg =
-  "https://thredds.servirglobal.net/thredds/wms/Agg/nasa-imerg-late_global_0.1deg_30min.nc4?service=WMS&version=1.3.0&crs=EPSG%3A3857";
+function createLayer(item, index) {
+  // Add to layer manager
+  $("#layer-list").append(getLayerHtml(item));
+  // Create actual layer and put in overlayMaps
+  var key = (overlayMaps[item.id + "TimeLayer"] = L.timeDimension.layer.wms(
+    L.tileLayer.wms(item.url + "&crs=EPSG%3A3857", {
+      layers: item.layers,
+      format: "image/png",
+      transparent: true,
+      colorscalerange: item.colorrange,
+      abovemaxcolor: "transparent",
+      belowmincolor: "transparent",
+      numcolorbands: 100,
+      styles: item.styles,
+    }),
+    {
+      updateTimeDimension: true,
+    }
+  ));
+  overlayMaps[item.id + "TimeLayer"].id = item.id;
+}
 
-var imergLayer = L.tileLayer.wms(imerg, {
-  layers: "precipitation_amount",
-  format: "image/png",
-  transparent: true,
-  colorscalerange: "-0.4,0.4",
-  abovemaxcolor: "extend",
-  belowmincolor: "extend",
-  numcolorbands: 100,
-  styles: "boxfill/rainbow",
-});
+function getLayerHtml(item) {
+  var replica = $("#layersTemplate:first").clone();
+  return replica
+    .html()
+    .replaceAll("{title}", item.title)
+    .replaceAll("{id}", item.id)
+    .replaceAll("{layername}", item.id + "TimeLayer");
+}
 
-var imergTimeLayer = L.timeDimension.layer.wms(imergLayer, {
-  updateTimeDimension: true,
-});
+/** This is just for testing and a template - Will be dynamically created in a list onReady */
+// var imerg =
+//   "https://thredds.servirglobal.net/thredds/wms/Agg/nasa-imerg-late_global_0.1deg_30min.nc4?service=WMS&version=1.3.0&crs=EPSG%3A3857";
+
+// var imergLayer = L.tileLayer.wms(imerg, {
+//   layers: "precipitation_amount",
+//   format: "image/png",
+//   transparent: true,
+//   colorscalerange: "-0.4,0.4",
+//   abovemaxcolor: "extend",
+//   belowmincolor: "extend",
+//   numcolorbands: 100,
+//   styles: "boxfill/rainbow",
+// });
+
+// var imergTimeLayer = L.timeDimension.layer.wms(imergLayer, {
+//   updateTimeDimension: true,
+// });
+// imergTimeLayer.id = "imerg";
 
 // Legends
 var heightLegend = L.control({
@@ -70,16 +104,15 @@ var heightLegend = L.control({
 });
 heightLegend.onAdd = function (map) {
   var src =
-    ndvi +
-    "?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=adt&colorscalerange=-0.4,0.4&PALETTE=rainbow&transparent=TRUE";
+    "https://thredds.servirglobal.net/thredds/wms/Agg/nasa-imerg-late_global_0.1deg_30min.nc4?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=precipitation_amount&colorscalerange=-0.4,0.4&PALETTE=rainbow";
   var div = L.DomUtil.create("div", "info legend");
   div.innerHTML += '<img src="' + src + '" alt="legend">';
   return div;
 };
 
-var overlayMaps = {
-  IMERG: imergTimeLayer,
-};
+// var overlayMaps = {
+//   imerg: imergTimeLayer,
+// };
 
 map.on("layeradd", function (eventLayer) {
   console.log("added");
@@ -96,31 +129,14 @@ map.on("layeradd", function (eventLayer) {
 map.on("overlayadd", function (eventLayer) {
   console.log("added over");
   console.log(eventLayer.name);
-});
-
-map.on("add", function (eventLayer) {
-  console.log("add");
-  console.log(eventLayer);
-});
-
-map.on("layerremove", function (eventLayer) {
-  console.log("layerremove");
-});
-
-map.on("baselayerchange", function (eventLayer) {
-  console.log("baselayerchange");
-  console.log(eventLayer.name);
+  // this adds a legend to the map
+  heightLegend.addTo(this);
 });
 
 map.on("overlayremove", function (eventLayer) {
   console.log("overlayremove");
-  if (eventLayer.name == "AVISO - Sea surface height above geoid") {
-    map.removeControl(heigthLegend);
-  } else if (
-    eventLayer.name == "AVISO - Surface geostrophic sea water velocity"
-  ) {
-    map.removeControl(velocityLegend);
-  }
+
+  map.removeControl(heightLegend);
 });
 
 var baseLayers = getCommonBaseLayers(map); // use baselayers.js to add, remove, or edit
@@ -146,20 +162,20 @@ for (var key of Object.keys(baseLayers)) {
  *
  */
 function handleBaseMapSwitch(which) {
-  console.log("active_basemap: " + active_basemap);
   map.removeLayer(baseLayers[active_basemap]);
-  console.log("which: " + which);
   active_basemap = which;
   baseLayers[active_basemap].addTo(map);
 }
 
-imergTimeLayer.addTo(map);
-var visible = true;
+//imergTimeLayer.addTo(map);
+/**
+ *
+ * @param {string} which The id of the layer to toggle
+ */
 function toggleLayer(which) {
-  visible = !visible;
-  if (visible) {
-    which.addTo(map);
+  if (map.hasLayer(overlayMaps[which])) {
+    map.removeLayer(overlayMaps[which]);
   } else {
-    map.removeLayer(which);
+    map.addLayer(overlayMaps[which]);
   }
 }

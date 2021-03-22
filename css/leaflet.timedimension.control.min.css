@@ -221,7 +221,7 @@
   -webkit-transform: none;
   transform: none;
 }
-a.timecontrol-play.loading:before {
+/*a.timecontrol-play.loading:before {
   content: "\e031";
   opacity: 0.2;
   -webkit-animation: icon-rotation 6s infinite linear;
@@ -233,7 +233,7 @@ a.timecontrol-play.loading:before {
   position: absolute;
   -webkit-animation: icon-rotation 6s infinite linear;
   animation: icon-rotation 6s infinite linear;
-}
+}*/
 .timecontrol-speed:before {
   content: "\e141";
   position: absolute;
