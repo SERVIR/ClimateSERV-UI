@@ -29,6 +29,7 @@ build/
 *.lock
 *.log
 *.sock
+.vscode
 
 npm-debug.log*
 yarn-debug.log*
