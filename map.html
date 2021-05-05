@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
   <head>
+    <link href="css/jquery-ui.min.css" rel="stylesheet" />
     <link
       rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
@@ -69,14 +70,14 @@
           <div class="sidebar-tabs">
             <ul role="tablist">
               <li>
-                <a href="#layers" role="tab"
-                  ><i class="fas fa-layer-group"></i
-                ></a>
+                <a href="#layers" role="tab">
+                  <i class="fas fa-layer-group"></i>
+                </a>
               </li>
               <li>
-                <a href="#chart" role="tab"
-                  ><i class="fas fa-chart-line"></i
-                ></a>
+                <a href="#chart" role="tab">
+                  <i class="fas fa-chart-line"></i>
+                </a>
               </li>
               <li>
                 <a href="#basemap" role="tab"><i class="fas fa-map"></i></a>
@@ -86,8 +87,9 @@
                   href="https://github.com/Turbo87/sidebar-v2"
                   role="tab"
                   target="_blank"
-                  ><i class="fa fa-github"></i
-                ></a>
+                >
+                  <i class="fa fa-github"></i>
+                </a>
               </li>
             </ul>
 
@@ -103,9 +105,9 @@
             <div class="sidebar-pane" id="layers">
               <h1 class="sidebar-header">
                 Layers
-                <span class="sidebar-close"
-                  ><i class="fas fa-caret-left"></i
-                ></span>
+                <span class="sidebar-close">
+                  <i class="fas fa-caret-left"></i>
+                </span>
               </h1>
 
               <ol class="layers vertical" id="layer-list"></ol>
@@ -129,9 +131,9 @@
 
             <div class="sidebar-pane" id="settings">
               <h1 class="sidebar-header">
-                Settings<span class="sidebar-close"
-                  ><i class="fas fa-caret-left"></i
-                ></span>
+                Settings<span class="sidebar-close">
+                  <i class="fas fa-caret-left"></i>
+                </span>
               </h1>
             </div>
           </div>
@@ -147,14 +149,23 @@
           </div>
           <div class="ml-auto climate-power">
             <span>Powered by </span
-            ><a href="https://servirglobal.net"
-              ><img
+            ><a href="https://servirglobal.net">
+              <img
                 src="img/logo_servir_global_better.png"
                 alt="SERVIR Global"
                 style="margin-left: 8px"
-            /></a>
+              />
+            </a>
           </div>
         </footer>
+      </div>
+
+      <div id="dialog" style="display: none" class="ui-widget-content">
+        <p>
+          This is the default dialog which is useful for displaying information.
+          The dialog window can be moved, resized and closed with the
+          &apos;x&apos; icon.
+        </p>
       </div>
     </div>
 
@@ -163,6 +174,7 @@
       integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
       crossorigin="anonymous"
     ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="js/jquery-sortable.js"></script>
     <script
       src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
@@ -193,41 +205,76 @@
     ></script>
     <script src="js/leaflet-sidebar.js"></script>
     <script src="js/map.js"></script>
-    <script type="text/javascript"></script>
+    <script>
+      $(function () {
+        jQuery.fn.center = function () {
+          this.css("position", "absolute");
+          this.css(
+            "top",
+            Math.max(
+              0,
+              ($(window).height() - $(this).outerHeight()) / 2 +
+                $(window).scrollTop()
+            ) + "px"
+          );
+          this.css(
+            "left",
+            Math.max(
+              0,
+              ($(window).width() - $(this).outerWidth()) / 2 +
+                $(window).scrollLeft()
+            ) + "px"
+          );
+          return this;
+        };
+      });
+    </script>
     <script id="layersTemplate" type="text/template">
       <li>
-        <div class="rst__nodeContent" style="left: 44px">
-          <div style="height: 100%">
-            <div class="rst__rowWrapper">
-              <div class="rst__row" style="opacity: 1">
-                <div class="rst__moveHandle" draggable="true"></div>
-                <div class="rst__rowContents">
-                  <div class="rst__rowLabel">
-                    <span class="rst__rowTitle">
-                      <input
-                        type="checkbox"
-                        id="{id}"
-                        name="{id}"
-                        onchange="toggleLayer('{layername}')"
-                      />
-                      <label for="{id}" title="{title}">{title}</label>
-                      <br /><input
-                        type="range"
-                        class="layer-opacity"
-                        min="0"
-                        max="1"
-                        step=".01"
-                        value="1"
-                      />
-                    </span>
+          <div class="rst__nodeContent" style="left: 44px">
+              <div style="height: 100%">
+                  <div class="rst__rowWrapper">
+                      <div class="rst__row" style="opacity: 1">
+                          <div class="rst__moveHandle" draggable="true"></div>
+                          <div class="rst__rowContents">
+                              <div class="rst__rowLabel">
+                                  <span class="rst__rowTitle">
+                                      <input type="checkbox"
+                                             id="{id}"
+                                             name="{id}"
+                                             onchange="toggleLayer('{layername}')" />
+                                      <label for="{id}" title="{title}">{title}</label>
+                                      <br />
+                                  </span>
+                                  <div>
+                                      <i class="fas fa-list legend-btn"
+                                         onclick="openLegend('{layername}')"
+                                         style="float: left; margin: 0 0 15px 15px;">
+                                          Legend
+                                      </i>
+                                      <i class="fas fa-cog" style="float: right; margin: 0 15px 15px 0;">
+                                          Settings
+                                      </i>
+                                  </div>
+                              </div>
+                              <div class="rst__rowToolbar"></div>
+                          </div>
+                      </div>
                   </div>
-                  <div class="rst__rowToolbar"></div>
-                </div>
               </div>
-            </div>
           </div>
-        </div>
       </li>
+    </script>
+    <script id="proposedChange" style="display: none" type="text/template">
+      <div>
+          <i class="fas fa-list" onclick="console.log('open legend')" style="
+                  float: left;
+                  margin: 0 0 15px 15px;
+              "> Legend</i><i class="fas fa-cog" style="
+                  float: right;
+                  margin: 0 15px 15px 0;
+              "> Settings</i>
+      </div>
     </script>
   </body>
 </html>

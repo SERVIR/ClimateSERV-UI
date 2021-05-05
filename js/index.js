@@ -1,8 +1,3 @@
-$("#main-carousel").carousel();
-$("#usageCarousel").carousel({
-  interval: false,
-});
-
 function getItemHtml(item) {
   var replica = $("#dataCarouselItemsTemplate:first").clone();
   return replica
@@ -15,10 +10,34 @@ function getItemHtml(item) {
     .replace("{buttonlocation}", "'" + item.button.location + "'");
 }
 
-function setSlide(which) {
+function setYouCanDoSlide(which) {
   $("#usageCarousel").carousel(which);
 }
+
+function adjustCards() {
+  $(".card").animate({ height: "auto" }, function () {
+    $(".card").height("auto");
+    var maxHeight = Math.max.apply(
+      null,
+      $(".card")
+        .map(function () {
+          return $(this).height();
+        })
+        .get()
+    );
+    $(".card").height(maxHeight);
+  });
+}
+
+$(window).resize(function () {
+  adjustCards();
+});
+
 $(function () {
+  $("#main-carousel").carousel();
+  $("#usageCarousel").carousel({
+    interval: false,
+  });
   $.each(dataItems, function (index, item) {
     var active = index === 0;
     if (index === 0) {
@@ -55,23 +74,6 @@ $(function () {
       next.children(":first-child").clone().appendTo($(this));
     }
   });
-  adjustCards();
-});
 
-$(window).resize(function () {
   adjustCards();
 });
-function adjustCards() {
-  $(".card").animate({ height: "auto" }, function () {
-    $(".card").height("auto");
-    var maxHeight = Math.max.apply(
-      null,
-      $(".card")
-        .map(function () {
-          return $(this).height();
-        })
-        .get()
-    );
-    $(".card").height(maxHeight);
-  });
-}

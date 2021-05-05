@@ -17,12 +17,74 @@ body {
   margin: 0;
 }
 
+#dialog {
+  background: #ffffff;
+  min-width: 99%;
+}
+
+.ui-dialog {
+  z-index: 9999 !important;
+  padding: 0;
+}
+
+.ui-dialog .ui-dialog-content {
+  padding: 5px 18px;
+}
+
+.ui-widget-header {
+  border: 0;
+  background: #002a53;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 5px 8px;
+  border-radius: 5px 5px 0 0;
+  cursor: move;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAAm0lEQVR4Ae3VAQaAQBBA0dCBukcIHWSPsgfpiOGHMKKg+QrmAyzr2WVmuKmqqgqYrDsMTOOsJe7owA6sWczMtfYKE+2plwJGYHuJCkzU49RH+RgfZWMElIcRUB5GQOkYAeVjJJSJSQy9qP2PsVECpmcmuo4x1oyIiTyUgFFRAkZACZjPUcDyhEmgJuuFujDRtW9bhDUz3xxVVVUdlCLox3GudKQAAAAASUVORK5CYII=);
+  border: 1px solid #ffffff;
+  float: right;
+  /* margin-top: 5px; */
+  background-size: contain;
+  background-color: unset;
+}
+
+.ui-dialog .ui-dialog-titlebar-close:hover {
+  border: 2px solid #ffffff;
+}
+
+.ui-dialog .ui-resizable-se {
+  right: 0 !important;
+  bottom: 0 !important;
+  background-position: -64px -224px !important;
+  width: 17px;
+  height: 17px;
+  z-index: 1000 !important;
+}
+
+.ui-dialog .ui-dialog-title {
+  font-weight: 400;
+  font-size: 14.4pt;
+}
+
+.legend-btn {
+  cursor: pointer;
+}
+
+.legend-btn:hover {
+  color: #7eaddb;
+}
+
 .leaflet-control-layers.leaflet-control {
   display: none;
 }
 
-.leaflet-bar a,
-leaflet-bar-timecontrol {
+.leaflet-bar-timecontrol {
+  color: #ffffff;
+}
+.leaflet-bar a {
   background-color: rgba(0, 60, 136, 0.5);
   border-bottom: 1px solid #ccc;
   width: 26px;
