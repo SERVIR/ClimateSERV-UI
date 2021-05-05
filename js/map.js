@@ -40,6 +40,21 @@ function getLayer(which) {
         (item) => item.id === which.replace("TimeLayer", "")
     );
 }
+var styleOptions = [];
+function buildStyles() {
+    $.get('https://thredds.servirglobal.net/thredds/wms/Agg/emodis-ndvi_eastafrica_250m_10dy.nc4?service=WMS&version=1.3.0&request=GetCapabilities', function (xml) {
+        var jsonObj = $.xml2json(xml);
+        var styles = jsonObj["#document"].WMS_Capabilities.Capability.Layer.Layer.Layer.Style;
+        // figure out how to edit the template and save some place to use later, possibly just use a hidden div instead of a txt/template
+        var myClone = $("#styletemplate:first").clone();
+        for (i = 0; i < styles.length; i++) {
+            styleOptions.push({
+                val: styles[i].Name,
+                text: styles[i].Name,
+            });
+        }
+    }); 
+}
 
 function openSettings(which) {
     var active_layer = getLayer(which);
@@ -58,6 +73,11 @@ function openSettings(which) {
         resizable: { handles: "se" },
     });
     $(".ui-dialog-title").attr("title", "Settings");
+    $(styleOptions).each(function () {
+        $("#style_table").append($("<option>").attr('value', this.val).text(this.text));
+    });
+
+    $("#style_table").val(overlayMaps[which]._baseLayer.wmsParams.styles);
 
     var slider = document.getElementById("opacityctrl");
     slider.value = overlayMaps[which].options.opacity;
@@ -65,36 +85,46 @@ function openSettings(which) {
         console.log("Handler for .change() called on Layer: " + which + " " + this.value);
         overlayMaps[which].setOpacity(this.value);
     }
+
     var applyStylebtn = document.getElementById("applyStylebtn");
+    /* this is not working yet 
+     
+     try removing the layer and recreating it in the overlayMaps[which]
+     with the new parameters?
+     */
     applyStylebtn.onclick = function () {
+        if (map.hasLayer(overlayMaps[which])) {
+            map.removeLayer(overlayMaps[which]);
+        }
+        var item = getLayer(which);
+        overlayMaps[which] = L.timeDimension.layer.wms(
+            L.tileLayer.wms(item.url + "&crs=EPSG%3A3857", {
+                layers: item.layers,
+                format: "image/png",
+                transparent: true,
+                colorscalerange: document.getElementById("range-min").value + "," + document.getElementById("range-max").value,
+                abovemaxcolor: "transparent",
+                belowmincolor: "transparent",
+                numcolorbands: 100,
+                styles: $("#style_table").val(),
+            }),
+            {
+                updateTimeDimension: true,
+            }
+        )
+        map.addLayer(overlayMaps[which]);
         console.log("Apply style to: " + which);
     }
-    // Update the rest of the form values from 
-    // overlayMaps['which']._baseLayer.options.colorscalerange
+    // Update min/max
     document.getElementById("range-min").value = overlayMaps[which]._baseLayer.options.colorscalerange.split(',')[0];
     document.getElementById("range-max").value = overlayMaps[which]._baseLayer.options.colorscalerange.split(',')[1];
-    // Update color scheme with
-    // overlayMaps['which']._baseLayer.wmsParams.styles
+   
 }
-
+var kickout;
 function baseSettingsHtml(which) {
-    return `<div style="padding-bottom:15px;">
-            <br>
-            <label for="range-min" style="font-weight: 100">Min</label>
-            <input type="text" class="form-control" id="range-min" name="range-min" style="width: 100%">
-            <br> <label for="range-max" style="font-weight: 100">Max</label>
-            <input type="text" class="form-control" id="range-max" name="range-max" style="width: 100%">
-            <br><label>
-            Select Color Scheme
-            </label>
-            <select class="style_table form-control" name="style_table" id="style_table" style="width: 100%">
-            </select><br><button id="applyStylebtn" style="
-                float: right;
-            ">Apply</button>
-            <br><br>
-            <label for="opacityctrl" style="font-weight: 100">Opacity</label>
-            <input id="opacityctrl" type="range" class="layer-opacity form-control" min="0" max="1" step=".01" value="1" style="width:100%">
-    </div>`
+    var replica = $("#styletemplate:first").clone();
+    // do any replacing needed
+    return replica.html();
 }
 
 function openLegend(which) {
@@ -206,4 +236,7 @@ $(function () {
             });
         },
     });
+    try {
+        buildStyles();
+    } catch (e) { }
 });

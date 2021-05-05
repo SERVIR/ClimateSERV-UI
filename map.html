@@ -175,6 +175,7 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="js/xml2json.js"></script>
     <script src="js/jquery-sortable.js"></script>
     <script
       src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
@@ -277,6 +278,27 @@
                   margin: 0 15px 15px 0;
               "> Settings</i>
       </div>
+    </script>
+    <script id="styletemplate" style="display:none" type="text/template">
+        <div style="padding-bottom:15px;">
+            <br>
+            <label for="range-min" style="font-weight: 100">Min</label>
+            <input type="text" class="form-control" id="range-min" name="range-min" style="width: 100%">
+            <br> <label for="range-max" style="font-weight: 100">Max</label>
+            <input type="text" class="form-control" id="range-max" name="range-max" style="width: 100%">
+            <br><label>
+                Select Color Scheme
+            </label>
+            <select class="style_table form-control" name="style_table" id="style_table" style="width: 100%">
+            </select><br><button id="applyStylebtn" style="
+                float: right;
+            ">
+                Apply
+            </button>
+            <br><br>
+            <label for="opacityctrl" style="font-weight: 100">Opacity</label>
+            <input id="opacityctrl" type="range" class="layer-opacity form-control" min="0" max="1" step=".01" value="1" style="width:100%">
+        </div>
     </script>
   </body>
 </html>
