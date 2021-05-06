@@ -71,6 +71,8 @@ function openSettings(which) {
     $("#dialog").dialog({
         title: "Settings",
         resizable: { handles: "se" },
+        width: 'auto',
+        height: 'auto',
     });
     $(".ui-dialog-title").attr("title", "Settings");
     $(styleOptions).each(function () {
@@ -87,11 +89,7 @@ function openSettings(which) {
     }
 
     var applyStylebtn = document.getElementById("applyStylebtn");
-    /* this is not working yet 
-     
-     try removing the layer and recreating it in the overlayMaps[which]
-     with the new parameters?
-     */
+
     applyStylebtn.onclick = function () {
         if (map.hasLayer(overlayMaps[which])) {
             map.removeLayer(overlayMaps[which]);
