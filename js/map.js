@@ -214,6 +214,24 @@ function toggleLayer(which) {
 function selectAOI(which) {
     $(".selectAOI").hide();
     $("#" + which + "AOI").show();
+
+    var toolbar = new L.Control.Draw();
+    map.addControl(toolbar);
+    // will have to download css and sprites to make them white
+    map.on(L.Draw.Event.CREATED, function (e) {
+        var type = e.layerType,
+            layer = e.layer;
+        console.log("hi");
+        if (type === 'marker') {
+            // Do marker specific actions
+        }
+        // Do whatever else you need to. (save to db; add to map etc)
+        map.addLayer(layer);
+    });
+}
+
+function enableDrawing() {
+
 }
 
 /**
