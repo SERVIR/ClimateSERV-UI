@@ -210,7 +210,19 @@ function toggleLayer(which) {
         map.addLayer(overlayMaps[which]);
     }
 }
-var item, c, s;
+
+function selectAOI(which) {
+    $(".selectAOI").hide();
+    $("#" + which + "AOI").show();
+}
+
+/**
+ *
+ * 
+ */
+function uploadShapefile() {
+    // https://gis.stackexchange.com/questions/368033/how-to-display-shapefiles-on-an-openlayers-web-mapping-application-that-are-prov
+}
 /** Page load functions */
 $(function () {
     mapSetup();
@@ -221,9 +233,6 @@ $(function () {
         placeholder: "<hr />",
         // animation on drop
         onDrop: function ($item, container, _super) {
-            item = $item;
-            c = container;
-            s = _super;
             var $clonedItem = $("<li/>").css({ height: 0 });
             $item.before($clonedItem);
             $clonedItem.animate({ height: $item.height() });
