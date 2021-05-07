@@ -231,12 +231,12 @@
       });
     </script>
     <script id="layersTemplate" type="text/template">
-      <li>
+      <li id="{id}_node">
           <div class="rst__nodeContent" style="left: 44px">
               <div style="height: 100%">
                   <div class="rst__rowWrapper">
                       <div class="rst__row" style="opacity: 1">
-                          <div class="rst__moveHandle" draggable="true"></div>
+                          <div class="rst__moveHandle" draggable="true" ondrop="reorderLayers(event, something)"></div>
                           <div class="rst__rowContents">
                               <div class="rst__rowLabel">
                                   <span class="rst__rowTitle">

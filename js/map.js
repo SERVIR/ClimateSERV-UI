@@ -5,8 +5,8 @@ var overlayMaps = {};
 var baseLayers;
 
 function getLayerHtml(item) {
-    var replica = $("#layersTemplate:first").clone();
-    return replica
+    return $("#layersTemplate:first")
+        .clone()
         .html()
         .replaceAll("{title}", item.title)
         .replaceAll("{id}", item.id)
@@ -40,6 +40,11 @@ function getLayer(which) {
         (item) => item.id === which.replace("TimeLayer", "")
     );
 }
+
+function reorderLayers(e, b) {
+    console.log('e: ' + e);
+    console.log('b: ' + b);
+}
 var styleOptions = [];
 function buildStyles() {
     $.get('https://thredds.servirglobal.net/thredds/wms/Agg/emodis-ndvi_eastafrica_250m_10dy.nc4?service=WMS&version=1.3.0&request=GetCapabilities', function (xml) {
@@ -59,14 +64,20 @@ function buildStyles() {
 function openSettings(which) {
     var active_layer = getLayer(which);
 
-    // Need to mirror layer toggle checkbox here at the top so users can toggle from settings as well
+    var settingsHtml = "";
+    if (active_layer.dataset == "model") {
+        // need to get available ensembles then 
+        // add checkboxes for each to enable turning on and off
+        // will likely have to adjust the apply button as well since 
+        // it currently works on overlayMaps[which]
 
-    // check if is model
-    // if so add the ensemble checkboxes 
-    // as well as  baseSettingsHtml()
+        settingsHtml += "Get the Ens info to build the checkboxes";
+    }
+
+    settingsHtml += baseSettingsHtml();
 
     $("#dialog").html(
-        baseSettingsHtml()
+        settingsHtml
     );
     $("#dialog").dialog({
         title: "Settings",
@@ -94,10 +105,10 @@ function openSettings(which) {
         if (map.hasLayer(overlayMaps[which])) {
             map.removeLayer(overlayMaps[which]);
         }
-        var item = getLayer(which);
+        //var item = getLayer(which);
         overlayMaps[which] = L.timeDimension.layer.wms(
-            L.tileLayer.wms(item.url + "&crs=EPSG%3A3857", {
-                layers: item.layers,
+            L.tileLayer.wms(active_layer.url + "&crs=EPSG%3A3857", {
+                layers: active_layer.layers,
                 format: "image/png",
                 transparent: true,
                 colorscalerange: document.getElementById("range-min").value + "," + document.getElementById("range-max").value,
@@ -111,7 +122,7 @@ function openSettings(which) {
             }
         )
         map.addLayer(overlayMaps[which]);
-        console.log("Apply style to: " + which);
+        document.getElementById(which.replace("TimeLayer", '')).checked = true
     }
     // Update min/max
     document.getElementById("range-min").value = overlayMaps[which]._baseLayer.options.colorscalerange.split(',')[0];
@@ -190,13 +201,16 @@ function handleBaseMapSwitch(which) {
  * @param {string} which The id of the layer to toggle
  */
 function toggleLayer(which) {
+    if ($('#dialog').dialog()) {
+        $('#dialog').dialog('close');
+    }
     if (map.hasLayer(overlayMaps[which])) {
         map.removeLayer(overlayMaps[which]);
     } else {
         map.addLayer(overlayMaps[which]);
     }
 }
-
+var item, c, s;
 /** Page load functions */
 $(function () {
     mapSetup();
@@ -207,12 +221,25 @@ $(function () {
         placeholder: "<hr />",
         // animation on drop
         onDrop: function ($item, container, _super) {
+            item = $item;
+            c = container;
+            s = _super;
             var $clonedItem = $("<li/>").css({ height: 0 });
             $item.before($clonedItem);
             $clonedItem.animate({ height: $item.height() });
 
             $clonedItem.detach();
             _super($item, container);
+
+            var count = 1;
+            for (var i = $("ol.layers li").length; i > 0 ; i--) {
+                var name = $("ol.layers li")[i - 1].id.replace("_node", "TimeLayer");
+                console.log("Set z-index of layer " + name + " to " + i);
+
+                overlayMaps[name].setZIndex(count);
+                count++;
+            }
+
         },
 
         // set $item relative to cursor position
