@@ -221,6 +221,9 @@ function selectAOI(which) {
     if (drawtoolbar) {
         drawtoolbar.remove();
     }
+    if (adminLayer) {
+        adminLayer.remove();
+    }
 
     drawnItems.clearLayers();
 
