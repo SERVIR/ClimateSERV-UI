@@ -259,7 +259,7 @@ function enableDrawing() {
         drawnItems.clearLayers();
     });
 }
-
+var mye;
 function enableAdminFeature(which) {
     if (adminLayer) {
         adminLayer.remove();
@@ -273,7 +273,69 @@ function enableAdminFeature(which) {
         VERSION: "1.3.0"
     });
     map.addLayer(adminLayer);
-    adminLayer.setZIndex(Object.keys(baseLayers).length + globalLayerArray.length + 5)
+    adminLayer.setZIndex(Object.keys(baseLayers).length + globalLayerArray.length + 5);
+
+    // enable map click to show highlighted selections
+
+    map.on('click', function (e) {
+        mye = e;
+        //map.getBounds()
+
+        //map.options.crs.projection.unproject(L.point([e.latlng.lat, e.latlng.lng]))
+
+        var url = getFeatureInfoUrl(
+            map,
+            adminLayer,
+            e.latlng,
+            {
+                'info_format': 'application/json',
+                'propertyName': 'NAME,AREA_CODE,DESCRIPTIO'
+            }
+        );
+        //working here
+        var clickLocation = e.latlng;
+        console.log(clickLocation);
+        console.log(map.options.crs.projection.unproject(L.point([e.latlng.lat, e.latlng.lng])));
+        console.log(url);
+    });
+}
+
+
+function getFeatureInfoUrl(map, layer, latlng, params) {
+
+    var point = map.latLngToContainerPoint(latlng, map.getZoom()),
+        size = map.getSize(),
+        bounds = map.getBounds(),
+        sw = bounds.getSouthWest(),
+        ne = bounds.getNorthEast(),
+        sw = map.options.crs.projection.unproject(L.point([sw.lng, sw.lat])),
+        ne = map.options.crs.projection.unproject(L.point([ne.lng, ne.lat]));
+    console.log(sw)
+    // the bounding box is still incorrect
+    var bb = sw.lat + ',' + sw.lng + ',' + ne.lat + ',' + ne.lng;
+
+    var defaultParams = {
+        request: 'GetFeatureInfo',
+        service: 'WMS',
+        srs: '102100',
+        styles: '',
+        version: layer._wmsVersion,
+        format: layer.options.format,
+        bbox: bb, //[sw.join(','), ne.join(',')].join(','),
+        height: size.y,
+        width: size.x,
+        layers: layer.options.layers,
+        query_layers: layer.options.layers,
+        info_format: 'text/html'
+    };
+
+    params = L.Util.extend(defaultParams, params || {});
+
+    params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
+    params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
+
+    return layer._url + L.Util.getParamString(params, layer._url, true);
+
 }
 
 /**
