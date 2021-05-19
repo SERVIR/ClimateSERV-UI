@@ -5,6 +5,7 @@ var overlayMaps = {};
 var adminLayer;
 var adminHighlightLayer;
 var highlightedIDs = [];
+var uploadLayer;
 var baseLayers;
 var drawnItems;
 var drawtoolbar;
@@ -147,6 +148,7 @@ function baseSettingsHtml(which) {
 }
 
 function openLegend(which) {
+  //fix this, it's not getting the new style if the user changes, it's getting the default
   var active_layer = getLayer(which);
   var src =
     active_layer.url +
@@ -227,21 +229,116 @@ function selectAOI(which) {
   $(".selectAOI").hide();
   $("#" + which + "AOI").show();
 
+  clearAOISelections();
+
+    if (which === "draw") {
+        enableDrawing();
+    } else if (which === "upload") {
+        enableUpload();
+    }
+}
+function clearAOISelections() {
   if (drawtoolbar) {
     drawtoolbar.remove();
   }
+
+  map.off("click");
   if (adminLayer) {
     adminLayer.remove();
   }
-
-  drawnItems.clearLayers();
-
-  if (which === "draw") {
-    enableDrawing();
+  if (adminHighlightLayer) {
+    adminHighlightLayer.remove();
   }
+
+  highlightedIDs = [];
+  if (drawnItems) {
+    drawnItems.clearLayers();
+    }
+    if (uploadLayer) {
+        uploadLayer.remove();
+    }
+}
+
+var hfile;
+
+var shpdata;
+
+function enableUpload() {
+
+    uploadLayer = L.geoJson().addTo(map);
+
+    var targetEl = document.getElementById("drop-container");
+    targetEl.addEventListener('dragenter', function (e) { e.preventDefault(); });
+    targetEl.addEventListener('dragover', function (e) { e.preventDefault(); });
+
+    targetEl.addEventListener('drop', function (e) {
+        e.preventDefault();
+        var reader = new FileReader();
+        reader.onloadend = function () {
+            var data = JSON.parse(this.result);
+            dropped(data);
+        };
+        console.log("1");
+        var files = e.target.files || e.dataTransfer.files;
+        console.log("2");
+        console.log(files.length);
+        for (var i = 0, file; file = files[i]; i++) {
+            hfile = file;
+            console.log(file.type);
+            if (file.type === "application/json") {
+                reader.readAsText(file);
+            } else if (file.name.indexOf(".geojson") > -1) {
+                reader.readAsText(file);
+            } else if (file.type === "application/x-zip-compressed") {
+                console.log("process the zipped shapefile");
+                if (uploadLayer) {
+                    uploadLayer.clearLayers();
+                }
+                loadshp({
+                    url: file,
+                    encoding: 'UTF-8',
+                    EPSG: 4326
+                }, function (data) {
+                    var URL = window.URL || window.webkitURL || window.mozURL || window.msURL,
+                        url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: "application/json" }));
+
+                    //$('#link').attr('href', url);
+                    //$('#link').html(file.name + '.geojson' + '<i class="download icon"></i>').attr('download', file.name + '.geojson');
+
+                    //$('#downloadLink').slideDown(400);
+
+                    //$('.shp-modal').toggleClass('effect');
+                    //$('.overlay').toggleClass('effect');
+                    //    $('#wrap').toggleClass('blur');
+                        shpdata = data
+                        if (data.features.length > 10) {
+                            data.features = data.features.splice(0, 10);
+                        }
+                        
+                        uploadLayer.addData(data);
+                    map.fitBounds([
+                        [data.bbox[1], data.bbox[0]], [data.bbox[3], data.bbox[2]]
+                    ]);
+                    $('.dimmer').removeClass('active');
+                    $('#preview').addClass('disabled');
+                    $('#epsg').val('');
+                    $('#encoding').val('');
+                    $('#info').addClass('picInfo');
+                    $('#option').slideUp(500);
+                });
+            }
+        }
+        
+    });
+}
+
+function dropped(data) {
+    // dropped - do something with data
+    console.log(data);
 }
 
 function enableDrawing() {
+  clearAOISelections();
   drawtoolbar = new L.Control.Draw({
     draw: {
       polyline: false,
@@ -270,16 +367,8 @@ function enableDrawing() {
 }
 
 function enableAdminFeature(which) {
-  map.off("click");
-  if (adminLayer) {
-    adminLayer.remove();
-  }
-  if (adminHighlightLayer) {
-    adminHighlightLayer.remove();
-  }
+  clearAOISelections();
 
-  highlightedIDs = [];
-  console.log(which);
   adminLayer = L.tileLayer.wms(
     "https://climateserv2-ui.servirglobal.net/servirmap_102100/?&crs=EPSG%3A102100",
     {
