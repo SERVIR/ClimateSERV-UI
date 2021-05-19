@@ -102,9 +102,6 @@ function openSettings(which) {
   var slider = document.getElementById("opacityctrl");
   slider.value = overlayMaps[which].options.opacity;
   slider.oninput = function () {
-    console.log(
-      "Handler for .change() called on Layer: " + which + " " + this.value
-    );
     overlayMaps[which].setOpacity(this.value);
   };
 
@@ -231,11 +228,11 @@ function selectAOI(which) {
 
   clearAOISelections();
 
-    if (which === "draw") {
-        enableDrawing();
-    } else if (which === "upload") {
-        enableUpload();
-    }
+  if (which === "draw") {
+    enableDrawing();
+  } else if (which === "upload") {
+    enableUpload();
+  }
 }
 function clearAOISelections() {
   if (drawtoolbar) {
@@ -253,88 +250,86 @@ function clearAOISelections() {
   highlightedIDs = [];
   if (drawnItems) {
     drawnItems.clearLayers();
-    }
-    if (uploadLayer) {
-        uploadLayer.remove();
-    }
+  }
+  if (uploadLayer) {
+    uploadLayer.remove();
+  }
 }
 
-var hfile;
-
-var shpdata;
-
 function enableUpload() {
+  uploadLayer = L.geoJson().addTo(map);
 
-    uploadLayer = L.geoJson().addTo(map);
+  var targetEl = document.getElementById("drop-container");
+  targetEl.addEventListener("dragenter", function (e) {
+    e.preventDefault();
+  });
+  targetEl.addEventListener("dragover", function (e) {
+    e.preventDefault();
+  });
 
-    var targetEl = document.getElementById("drop-container");
-    targetEl.addEventListener('dragenter', function (e) { e.preventDefault(); });
-    targetEl.addEventListener('dragover', function (e) { e.preventDefault(); });
-
-    targetEl.addEventListener('drop', function (e) {
-        e.preventDefault();
-        var reader = new FileReader();
-        reader.onloadend = function () {
-            var data = JSON.parse(this.result);
-            dropped(data);
-        };
-        console.log("1");
-        var files = e.target.files || e.dataTransfer.files;
-        console.log("2");
-        console.log(files.length);
-        for (var i = 0, file; file = files[i]; i++) {
-            hfile = file;
-            console.log(file.type);
-            if (file.type === "application/json") {
-                reader.readAsText(file);
-            } else if (file.name.indexOf(".geojson") > -1) {
-                reader.readAsText(file);
-            } else if (file.type === "application/x-zip-compressed") {
-                console.log("process the zipped shapefile");
-                if (uploadLayer) {
-                    uploadLayer.clearLayers();
-                }
-                loadshp({
-                    url: file,
-                    encoding: 'UTF-8',
-                    EPSG: 4326
-                }, function (data) {
-                    var URL = window.URL || window.webkitURL || window.mozURL || window.msURL,
-                        url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: "application/json" }));
-
-                    //$('#link').attr('href', url);
-                    //$('#link').html(file.name + '.geojson' + '<i class="download icon"></i>').attr('download', file.name + '.geojson');
-
-                    //$('#downloadLink').slideDown(400);
-
-                    //$('.shp-modal').toggleClass('effect');
-                    //$('.overlay').toggleClass('effect');
-                    //    $('#wrap').toggleClass('blur');
-                        shpdata = data
-                        if (data.features.length > 10) {
-                            data.features = data.features.splice(0, 10);
-                        }
-                        
-                        uploadLayer.addData(data);
-                    map.fitBounds([
-                        [data.bbox[1], data.bbox[0]], [data.bbox[3], data.bbox[2]]
-                    ]);
-                    $('.dimmer').removeClass('active');
-                    $('#preview').addClass('disabled');
-                    $('#epsg').val('');
-                    $('#encoding').val('');
-                    $('#info').addClass('picInfo');
-                    $('#option').slideUp(500);
-                });
-            }
+  targetEl.addEventListener("drop", function (e) {
+    e.preventDefault();
+    var reader = new FileReader();
+    reader.onloadend = function () {
+      var data = JSON.parse(this.result);
+      dropped(data);
+    };
+    var files = e.target.files || e.dataTransfer.files;
+    for (var i = 0, file; (file = files[i]); i++) {
+      if (file.type === "application/json") {
+        reader.readAsText(file);
+      } else if (file.name.indexOf(".geojson") > -1) {
+        reader.readAsText(file);
+      } else if (file.type === "application/x-zip-compressed") {
+        if (uploadLayer) {
+          uploadLayer.clearLayers();
         }
-        
-    });
+        loadshp(
+          {
+            url: file,
+            encoding: "UTF-8",
+            EPSG: 4326,
+          },
+          function (data) {
+            var URL =
+                window.URL || window.webkitURL || window.mozURL || window.msURL,
+              url = URL.createObjectURL(
+                new Blob([JSON.stringify(data)], { type: "application/json" })
+              );
+
+            //$('#link').attr('href', url);
+            //$('#link').html(file.name + '.geojson' + '<i class="download icon"></i>').attr('download', file.name + '.geojson');
+
+            //$('#downloadLink').slideDown(400);
+
+            //$('.shp-modal').toggleClass('effect');
+            //$('.overlay').toggleClass('effect');
+            //    $('#wrap').toggleClass('blur');
+            if (data.features.length > 10) {
+              data.features = data.features.splice(0, 10);
+            }
+
+            uploadLayer.addData(data);
+            map.fitBounds([
+              [data.bbox[1], data.bbox[0]],
+              [data.bbox[3], data.bbox[2]],
+            ]);
+            $(".dimmer").removeClass("active");
+            $("#preview").addClass("disabled");
+            $("#epsg").val("");
+            $("#encoding").val("");
+            $("#info").addClass("picInfo");
+            $("#option").slideUp(500);
+          }
+        );
+      }
+    }
+  });
 }
 
 function dropped(data) {
-    // dropped - do something with data
-    console.log(data);
+  // dropped - do something with data, like add to map :)
+  console.log(data);
 }
 
 function enableDrawing() {
@@ -440,8 +435,7 @@ function getFeatureInfoUrl(map, layer, latlng, params) {
     ne = bounds.getNorthEast(),
     sw = L.CRS.EPSG3857.project(new L.LatLng(sw.lat, sw.lng)),
     ne = L.CRS.EPSG3857.project(new L.LatLng(ne.lat, ne.lng));
-  console.log(sw);
-  // the bounding box works now!
+
   var bb = sw.x + "," + sw.y + "," + ne.x + "," + ne.y;
 
   var defaultParams = {
@@ -492,7 +486,6 @@ function sortableLayerSetup() {
       var count = 1;
       for (var i = $("ol.layers li").length; i > 0; i--) {
         var name = $("ol.layers li")[i - 1].id.replace("_node", "TimeLayer");
-        console.log("Set z-index of layer " + name + " to " + i);
 
         overlayMaps[name].setZIndex(count);
         count++;
