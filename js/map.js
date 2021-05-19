@@ -3,6 +3,8 @@ var active_basemap = "OSM";
 var map;
 var overlayMaps = {};
 var adminLayer;
+var adminHighlightLayer;
+var highlightedIDs = [];
 var baseLayers;
 var drawnItems;
 var drawtoolbar;
@@ -264,7 +266,13 @@ function enableAdminFeature(which) {
     if (adminLayer) {
         adminLayer.remove();
     }
-    adminLayer = L.tileLayer.wms("https://climateserv.servirglobal.net/cgi-bin/servirmap_102100?&crs=EPSG%3A102100", {
+    if (adminHighlightLayer) {
+        adminHighlightLayer.remove();
+    }
+
+    highlightedIDs = [];
+
+    adminLayer = L.tileLayer.wms("https://climateserv2-ui.servirglobal.net/servirmap_102100/?&crs=EPSG%3A102100", {
         layers: which,
         format: "image/png",
         transparent: true,
@@ -293,10 +301,47 @@ function enableAdminFeature(which) {
             }
         );
         //working here
-        var clickLocation = e.latlng;
-        console.log(clickLocation);
-        console.log(map.options.crs.projection.unproject(L.point([e.latlng.lat, e.latlng.lng])));
         console.log(url);
+
+        // make ajax call to get the feature id, hold in list to allow multiple selection and removal
+        $.ajax({
+            type: "GET",
+            async: true,
+            url: url,
+            crossDomain: true,
+            jsonp: "callback",
+            dataType: "jsonp",
+            success: function (response) {
+                console.log(response); // server response
+
+                if (adminHighlightLayer) {
+                    adminHighlightLayer.remove();
+                }
+
+                var selectedID = response["data"];
+                if (highlightedIDs.includes(selectedID)) {
+                    highlightedIDs = highlightedIDs.filter(e => e !== selectedID);
+                } else {
+                    highlightedIDs.push(selectedID);
+                }
+
+                adminHighlightLayer = L.tileLayer.wms("https://climateserv2-ui.servirglobal.net/servirmap_102100/?&crs=EPSG%3A102100", {
+                    layers: which + '_highlight',
+                    format: "image/png",
+                    transparent: true,
+                    styles: '',
+                    TILED: true,
+                    VERSION: "1.3.0",
+                    feat_ids: highlightedIDs.join(),
+                });
+                map.addLayer(adminHighlightLayer);
+                adminHighlightLayer.setZIndex(Object.keys(baseLayers).length + globalLayerArray.length + 6);
+            }
+        })
+
+        // update highlight layer with new url to display selected feature(s)
+
+
     });
 }
 
@@ -308,16 +353,16 @@ function getFeatureInfoUrl(map, layer, latlng, params) {
         bounds = map.getBounds(),
         sw = bounds.getSouthWest(),
         ne = bounds.getNorthEast(),
-        sw = map.options.crs.projection.unproject(L.point([sw.lng, sw.lat])),
-        ne = map.options.crs.projection.unproject(L.point([ne.lng, ne.lat]));
+        sw = L.CRS.EPSG3857.project(new L.LatLng(sw.lat, sw.lng)),
+        ne = L.CRS.EPSG3857.project(new L.LatLng(ne.lat, ne.lng));
     console.log(sw)
-    // the bounding box is still incorrect
-    var bb = sw.lat + ',' + sw.lng + ',' + ne.lat + ',' + ne.lng;
+    // the bounding box works now!
+    var bb = sw.x + ',' + sw.y + ',' + ne.x + ',' + ne.y;
 
     var defaultParams = {
         request: 'GetFeatureInfo',
         service: 'WMS',
-        srs: '102100',
+        srs: 'EPSG:102100',
         styles: '',
         version: layer._wmsVersion,
         format: layer.options.format,
