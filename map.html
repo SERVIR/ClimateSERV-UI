@@ -28,28 +28,13 @@
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
 
     <title>ClimateSERV - Map</title>
+ 
 </head>
 <body>
     <div id="root">
         <div>
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <a href="#home" class="navbar-brand">
-                    <img src="img/logo_climateserv_WithGlobe.png"
-                         alt="ClimateSERV" />
-                </a><button aria-controls="basic-navbar-nav"
-                            type="button"
-                            aria-label="Toggle navigation"
-                            class="navbar-toggler collapsed">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse" id="basic-navbar-nav">
-                    <div class="mr-auto navbar-nav">
-                        <a aria-current="page" class="nav-link active" href="/">Home</a><a class="nav-link" href="/map">Map</a><a class="nav-link" href="/about">About Data</a>
-                    </div>
-                    <div class="navbar-nav">
-                        <a class="nav-link" href="/contact">Contact</a>
-                    </div>
-                </div>
+            <nav id="nav" class="navbar navbar-expand-lg navbar-dark bg-dark">
+
             </nav>
             <div id="sidebar" class="sidebar collapsed">
                 <!-- Nav tabs -->
@@ -191,17 +176,7 @@
             <div id="servirmap" class="sidebar-map"></div>
         </div>
         <div class="d-flex flex-column">
-            <footer>
-                <div class="climate-copy">
-                    <a href="https://climateserv.net">ClimateSERV</a><span>© 2020 SERVIR Global</span>
-                </div>
-                <div class="ml-auto climate-power">
-                    <span>Powered by </span><a href="https://servirglobal.net">
-                        <img src="img/logo_servir_global_better.png"
-                             alt="SERVIR Global"
-                             style="margin-left: 8px" />
-                    </a>
-                </div>
+            <footer id="footer">
             </footer>
         </div>
 
@@ -275,6 +250,7 @@
             };
         });
     </script>
+    <script src="js/navloader.js"></script>
     <script id="layersTemplate" type="text/template">
         <li id="{id}_node">
             <div class="rst__nodeContent" style="left: 44px">
