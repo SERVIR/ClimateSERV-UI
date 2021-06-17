@@ -11,6 +11,13 @@ var drawnItems;
 var drawtoolbar;
 var styleOptions = [];
 
+/**
+ * Clones the html for a layer to add to the layer
+ * manager and replaces the template items with the
+ * layer specific variables.
+ * @param {object} item - layer json object
+ * @returns html
+ */
 function getLayerHtml(item) {
   return $("#layersTemplate:first")
     .clone()
@@ -20,7 +27,12 @@ function getLayerHtml(item) {
     .replaceAll("{layername}", item.id + "TimeLayer");
 }
 
-function createLayer(item, index) {
+/**
+ * Evokes getLayerHtml, appends the result to the layer-list, then
+ * creates the map layer and stores it in the overlayMaps array
+ * @param {object} item  - layer json object
+ */
+function createLayer(item) {
   // Add to layer manager
   $("#layer-list").append(getLayerHtml(item));
   // Create actual layer and put in overlayMaps
@@ -42,17 +54,21 @@ function createLayer(item, index) {
   overlayMaps[item.id + "TimeLayer"].id = item.id;
 }
 
+/**
+ * Helper function to get a layer out of globalLayerArray
+ * @param {string} which - name of layer requesting
+ * @returns layer json object
+ */
 function getLayer(which) {
   return globalLayerArray.find(
     (item) => item.id === which.replace("TimeLayer", "")
   );
 }
 
-//function reorderLayers(e, b) {
-//    console.log('e: ' + e);
-//    console.log('b: ' + b);
-//}
-
+/**
+ * Retrieves the current TDS styles available and stores them in the
+ * styleOptions array, which will be used to load the styles dropdown box
+ */
 function buildStyles() {
   $.get(globalLayerArray[0].url + "&request=GetCapabilities", function (xml) {
     var jsonObj = $.xml2json(xml);
@@ -68,6 +84,10 @@ function buildStyles() {
   });
 }
 
+/**
+ * Populates the Settings box for the specific layer and opens the settings popup.
+ * @param {string} which - Name of layer to open settings for
+ */
 function openSettings(which) {
   var active_layer = getLayer(which);
 
@@ -138,12 +158,20 @@ function openSettings(which) {
   document.getElementById("range-max").value =
     overlayMaps[which]._baseLayer.options.colorscalerange.split(",")[1];
 }
-var kickout;
-function baseSettingsHtml(which) {
+
+/**
+ * Clones the base html settings and returns the html
+ * @returns html
+ */
+function baseSettingsHtml() {
   var replica = $("#styletemplate:first").clone();
   return replica.html();
 }
 
+/**
+ * Opens the legend for the selected layer
+ * @param {string} which - Name of layer to open legend for
+ */
 function openLegend(which) {
   //fix this, it's not getting the new style if the user changes, it's getting the default
   var active_layer = getLayer(which);
@@ -167,6 +195,9 @@ function openLegend(which) {
   $(".ui-dialog-title").attr("title", active_layer.title);
 }
 
+/**
+ * Basic map setup and creates the basemap thumbnails in the basemaps tab
+ */
 function mapSetup() {
   map = L.map("servirmap", {
     zoom: 5,
@@ -196,10 +227,10 @@ function mapSetup() {
     img.appendTo("#basemap");
   }
 }
+
 /**
- *
- * @param {string} [which] The Key of the basemap
- *
+ * Switches the basemap to the user selected map.
+ * @param {string} which - The Key of the basemap
  */
 function handleBaseMapSwitch(which) {
   map.removeLayer(baseLayers[active_basemap]);
@@ -208,8 +239,8 @@ function handleBaseMapSwitch(which) {
 }
 
 /**
- *
- * @param {string} which The id of the layer to toggle
+ * Closes any open dialog and either adds or removes the selected layer.
+ * @param {string} which - The id of the layer to toggle
  */
 function toggleLayer(which) {
   if ($("#dialog").dialog()) {
@@ -220,8 +251,13 @@ function toggleLayer(which) {
   } else {
     map.addLayer(overlayMaps[which]);
   }
+  adjustLayerIndex();
 }
 
+/**
+ * Opens the user selected method of selecting their AOI
+ * @param {string} which - name of selection method to activate
+ */
 function selectAOI(which) {
   $(".selectAOI").hide();
   $("#" + which + "AOI").show();
@@ -234,6 +270,10 @@ function selectAOI(which) {
     enableUpload();
   }
 }
+
+/**
+ * Removes all existing AOI selections and map click event
+ */
 function clearAOISelections() {
   if (drawtoolbar) {
     drawtoolbar.remove();
@@ -256,6 +296,9 @@ function clearAOISelections() {
   }
 }
 
+/**
+ * Enables AOI upload capabilities by adding drop events to the drop zone
+ */
 function enableUpload() {
   uploadLayer = L.geoJson().addTo(map);
 
@@ -272,7 +315,9 @@ function enableUpload() {
     var reader = new FileReader();
     reader.onloadend = function () {
       var data = JSON.parse(this.result);
-      dropped(data);
+      uploadLayer.clearLayers();
+      uploadLayer.addData(data);
+      map.fitBounds(uploadLayer.getBounds());
     };
     var files = e.target.files || e.dataTransfer.files;
     for (var i = 0, file; (file = files[i]); i++) {
@@ -281,6 +326,7 @@ function enableUpload() {
       } else if (file.name.indexOf(".geojson") > -1) {
         reader.readAsText(file);
       } else if (file.type === "application/x-zip-compressed") {
+        // https://gis.stackexchange.com/questions/368033/how-to-display-shapefiles-on-an-openlayers-web-mapping-application-that-are-prov
         if (uploadLayer) {
           uploadLayer.clearLayers();
         }
@@ -308,7 +354,7 @@ function enableUpload() {
             if (data.features.length > 10) {
               data.features = data.features.splice(0, 10);
             }
-
+            console.log(data);
             uploadLayer.addData(data);
             map.fitBounds([
               [data.bbox[1], data.bbox[0]],
@@ -327,11 +373,9 @@ function enableUpload() {
   });
 }
 
-function dropped(data) {
-  // dropped - do something with data, like add to map :)
-  console.log(data);
-}
-
+/**
+ * Enables the drawing of an AOI on the map
+ */
 function enableDrawing() {
   clearAOISelections();
   drawtoolbar = new L.Control.Draw({
@@ -361,6 +405,10 @@ function enableDrawing() {
   });
 }
 
+/**
+ * Adds the selected admin features to the map for the user to select the AOI.
+ * @param {string} which - name of admin layer to activate
+ */
 function enableAdminFeature(which) {
   clearAOISelections();
 
@@ -395,38 +443,48 @@ function enableAdminFeature(which) {
       jsonp: "callback",
       dataType: "jsonp",
       success: function (response) {
-        if (adminHighlightLayer) {
-          adminHighlightLayer.remove();
-        }
-
-        var selectedID = response["data"];
-        if (highlightedIDs.includes(selectedID)) {
-          highlightedIDs = highlightedIDs.filter((e) => e !== selectedID);
-        } else {
-          highlightedIDs.push(selectedID);
-        }
-
-        adminHighlightLayer = L.tileLayer.wms(
-          "https://climateserv2-ui.servirglobal.net/servirmap_102100/?&crs=EPSG%3A102100",
-          {
-            layers: which + "_highlight",
-            format: "image/png",
-            transparent: true,
-            styles: "",
-            TILED: true,
-            VERSION: "1.3.0",
-            feat_ids: highlightedIDs.join(),
+        if (response) {
+          if (adminHighlightLayer) {
+            adminHighlightLayer.remove();
           }
-        );
-        map.addLayer(adminHighlightLayer);
-        adminHighlightLayer.setZIndex(
-          Object.keys(baseLayers).length + globalLayerArray.length + 6
-        );
+
+          var selectedID = response["data"];
+          if (highlightedIDs.includes(selectedID)) {
+            highlightedIDs = highlightedIDs.filter((e) => e !== selectedID);
+          } else {
+            highlightedIDs.push(selectedID);
+          }
+
+          adminHighlightLayer = L.tileLayer.wms(
+            "https://climateserv2-ui.servirglobal.net/servirmap_102100/?&crs=EPSG%3A102100",
+            {
+              layers: which + "_highlight",
+              format: "image/png",
+              transparent: true,
+              styles: "",
+              TILED: true,
+              VERSION: "1.3.0",
+              feat_ids: highlightedIDs.join(),
+            }
+          );
+          map.addLayer(adminHighlightLayer);
+          adminHighlightLayer.setZIndex(
+            Object.keys(baseLayers).length + globalLayerArray.length + 6
+          );
+        }
       },
     });
   });
 }
 
+/**
+ *
+ * @param {object} map - the map object
+ * @param {object} layer - L.tileLayer.wms
+ * @param {object} latlng - location clicked
+ * @param {object} params - special parameters
+ * @returns string url
+ */
 function getFeatureInfoUrl(map, layer, latlng, params) {
   var point = map.latLngToContainerPoint(latlng, map.getZoom()),
     size = map.getSize(),
@@ -462,13 +520,8 @@ function getFeatureInfoUrl(map, layer, latlng, params) {
 }
 
 /**
- *
- *
+ * Sets up the sortable layers in the layer manager
  */
-function uploadShapefile() {
-  // https://gis.stackexchange.com/questions/368033/how-to-display-shapefiles-on-an-openlayers-web-mapping-application-that-are-prov
-}
-
 function sortableLayerSetup() {
   $("ol.layers").sortable({
     group: "simple_with_animation",
@@ -483,13 +536,7 @@ function sortableLayerSetup() {
       $clonedItem.detach();
       _super($item, container);
 
-      var count = 1;
-      for (var i = $("ol.layers li").length; i > 0; i--) {
-        var name = $("ol.layers li")[i - 1].id.replace("_node", "TimeLayer");
-
-        overlayMaps[name].setZIndex(count);
-        count++;
-      }
+      adjustLayerIndex();
     },
     // set $item relative to cursor position
     onDragStart: function ($item, container, _super) {
@@ -511,12 +558,35 @@ function sortableLayerSetup() {
     },
   });
 }
-/** Page load functions */
-$(function () {
+
+function adjustLayerIndex() {
+  var count = 1;
+  for (var i = $("ol.layers li").length; i > 0; i--) {
+    var name = $("ol.layers li")[i - 1].id.replace("_node", "TimeLayer");
+
+    overlayMaps[name].setZIndex(count);
+    count++;
+  }
+}
+
+/**
+ * Page load functions, initializes all parts of application
+ */
+function initMap() {
   mapSetup();
   globalLayerArray.forEach(createLayer);
   sortableLayerSetup();
   try {
     buildStyles();
   } catch (e) {}
+  adjustLayerIndex();
+}
+
+/**
+ * Calls initMap
+ *
+ * @event map-ready
+ */
+$(function () {
+  initMap();
 });

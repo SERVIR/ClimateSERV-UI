@@ -1,3 +1,9 @@
+/**
+ * Clones the carousel item template and replaces the fields with
+ * item attributes then returns the html.
+ * @param {object} item - Data item object (data-item.js)
+ * @returns html
+ */
 function getItemHtml(item) {
   var replica = $("#dataCarouselItemsTemplate:first").clone();
   return replica
@@ -10,10 +16,17 @@ function getItemHtml(item) {
     .replace("{buttonlocation}", "'" + item.button.location + "'");
 }
 
+/**
+ * Sets the active “you can do” slide
+ * @param {int} which - index of the slide to activate
+ */
 function setYouCanDoSlide(which) {
   $("#usageCarousel").carousel(which);
 }
 
+/**
+ * Ensures that all data teaser cards height match the height of the highest card for uniformity.
+ */
 function adjustCards() {
   $(".card").animate({ height: "auto" }, function () {
     $(".card").height("auto");
@@ -29,11 +42,19 @@ function adjustCards() {
   });
 }
 
+/**
+ * Calls adjustCards on any window resize
+ */
 $(window).resize(function () {
   adjustCards();
 });
 
-$(function () {
+/**
+ * Sets up the carousels and loads data into the teaser from the dataItems structure.
+ * It also creates cloned copies of the slides and mashes them into new slides that
+ * contain three slides each in order to have the three slides showing.
+ */
+function initIndex() {
   $("#main-carousel").carousel();
   $("#usageCarousel").carousel({
     interval: false,
@@ -76,4 +97,13 @@ $(function () {
   });
 
   adjustCards();
+}
+
+/**
+ * Calls initIndex on ready
+ *
+ * @event index-ready
+ */
+$(function () {
+  initIndex();
 });
