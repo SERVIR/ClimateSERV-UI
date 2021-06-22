@@ -1,6 +1,7 @@
 /** Global Variables */
 var active_basemap = "OSM";
 var map;
+var passedLayer;
 var overlayMaps = {};
 var adminLayer;
 var adminHighlightLayer;
@@ -51,7 +52,15 @@ function createLayer(item) {
       updateTimeDimension: true,
     }
   ));
-  overlayMaps[item.id + "TimeLayer"].id = item.id;
+    overlayMaps[item.id + "TimeLayer"].id = item.id;
+
+    if (item.id.includes(passedLayer)) {
+        console.log(item.id);
+        try {
+            document.getElementById(item.id).checked = true;
+            toggleLayer(item.id + "TimeLayer");
+        } catch (e) { }
+    }
 }
 
 /**
@@ -150,7 +159,11 @@ function openSettings(which) {
       }
     );
     map.addLayer(overlayMaps[which]);
-    document.getElementById(which.replace("TimeLayer", "")).checked = true;
+      document.getElementById(which.replace("TimeLayer", "")).checked = true;
+      active_layer.styles = $("#style_table").val();
+      active_layer.colorrange = document.getElementById("range-min").value +
+          "," +
+          document.getElementById("range-max").value
   };
   // Update min/max
   document.getElementById("range-min").value =
@@ -182,7 +195,7 @@ function openLegend(which) {
     "&colorscalerange=" +
     active_layer.colorrange +
     "&PALETTE=" +
-    active_layer.styles;
+      active_layer.styles.substr(active_layer.styles.indexOf("/") + 1);
   $("#dialog").html(
     '<p style="text-align:center;"><img src="' + src + '" alt="legend"></p>'
   );
@@ -225,7 +238,7 @@ function mapSetup() {
       handleBaseMapSwitch($(this)[0].getAttribute("datavalue"));
     });
     img.appendTo("#basemap");
-  }
+    }
 }
 
 /**
@@ -569,10 +582,23 @@ function adjustLayerIndex() {
   }
 }
 
+getParameterByName = (name, url) => {
+    const regex = new RegExp(
+        "[?&]" + name.replace(/[[\]]/g, "\\$&") + "(=([^&#]*)|&|#|$)"
+    );
+    const results = regex.exec(decodeURIComponent(url || window.location.href));
+    return results
+        ? results[2]
+            ? decodeURIComponent(results[2].replace(/\+/g, " "))
+            : ""
+        : null;
+};
+
 /**
  * Page load functions, initializes all parts of application
  */
 function initMap() {
+  passedLayer = this.getParameterByName("data") || "none";
   mapSetup();
   globalLayerArray.forEach(createLayer);
   sortableLayerSetup();

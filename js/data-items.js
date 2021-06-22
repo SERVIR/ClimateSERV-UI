@@ -37,20 +37,20 @@ var dataItems = [
     },
     button: {
       location: "map?data=esi4w",
-      text: "Check out the NDVI",
+      text: "Check out the ESI",
     },
   },
   {
-    title: "Check the Normalized Difference Vegetation Index in your area",
+    title: "Check the IMERG data in your area",
     text:
-      "We serve regional MODIS derived NDVI that you can view, get statistical values, or clip and download.",
+      "We serve regional IMERG data that you can view, get statistical values, or clip and download.",
     image: {
-      src: "img/modis_chirps.png",
-      alt: "CHIRPS",
+        src: "img/miltisat_imerg.png",
+      alt: "IMERG",
     },
     button: {
-      location: "map?data=ndvi",
-      text: "Check out the NDVI",
+      location: "map?data=imerg",
+      text: "Check out the IMERG",
     },
   },
 ];
