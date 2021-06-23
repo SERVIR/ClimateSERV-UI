@@ -70,17 +70,20 @@ body {
 }
 
 .card-button {
-  color: #ffffff;
-  background-color: #73ac58;
-  /*position: absolute;
+    color: #ffffff;
+    background-color: #73ac58;
+    /*position: absolute;
   bottom: 15px;
   right: 15px;*/
-  border: #3b6e22 2px solid;
-  border-radius: 15px;
-  padding: 8px;
-  font-weight: 600;
-  outline: unset;
-  width: 100%;
+    border: #3b6e22 2px solid;
+    border-radius: 15px;
+    padding: 8px;
+    font-weight: 600;
+    outline: unset;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .card-button:hover,

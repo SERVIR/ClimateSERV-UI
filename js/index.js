@@ -12,7 +12,8 @@ function getItemHtml(item) {
     .replace("{description}", item.text)
     .replace("{imagesrc}", item.image.src)
     .replace("{imagealt}", "'" + item.image.alt + "'")
-    .replace("{buttontext}", item.button.text)
+    .replaceAll("{buttontext}", item.button.text)
+    .replace("{metaid}", item.metedata )
     .replace("{buttonlocation}", "'" + item.button.location + "'");
 }
 

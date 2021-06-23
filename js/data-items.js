@@ -10,7 +10,8 @@ var dataItems = [
     button: {
       location: "map?data=ndvi",
         text: "Access NDVI",
-    },
+        },
+    metedata: "7b758ba6-6445-11e6-b1b2-00505683028c",
   },
   {
     title:
@@ -24,7 +25,8 @@ var dataItems = [
     button: {
       location: "map?data=ucsbchirps",
         text: "Access CHIRPS",
-    },
+      },
+      metedata: "0b6e7781-99ca-4fe0-8dde-1e59bd791b77",
   },
   {
     title:
@@ -38,7 +40,8 @@ var dataItems = [
     button: {
       location: "map?data=esi4w",
         text: "Access ESI",
-    },
+      },
+      metedata: "97082c3e-a136-4689-bcdf-517a4bb6907f",
   },
   {
     title: "Check the IMERG data in your area",
@@ -51,6 +54,7 @@ var dataItems = [
     button: {
       location: "map?data=imerg",
       text: "Access IMERG",
-    },
+      },
+      metedata: "ec5da150-d043-414a-80cd-1b750debd805",
   },
 ];
