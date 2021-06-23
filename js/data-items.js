@@ -9,7 +9,7 @@ var dataItems = [
     },
     button: {
       location: "map?data=ndvi",
-      text: "Check out the NDVI",
+        text: "Access NDVI",
     },
   },
   {
@@ -23,7 +23,7 @@ var dataItems = [
     },
     button: {
       location: "map?data=ucsbchirps",
-      text: "Check out the CHIRPS",
+        text: "Access CHIRPS",
     },
   },
   {
@@ -37,7 +37,7 @@ var dataItems = [
     },
     button: {
       location: "map?data=esi4w",
-      text: "Check out the ESI",
+        text: "Access ESI",
     },
   },
   {
@@ -50,7 +50,7 @@ var dataItems = [
     },
     button: {
       location: "map?data=imerg",
-      text: "Check out the IMERG",
+      text: "Access IMERG",
     },
   },
 ];
