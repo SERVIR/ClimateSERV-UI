@@ -87,7 +87,12 @@
           width: $(window).width() - 100,
           height: $(window).height() - 140,
           draggable: false,
-          resizable: false,
+            resizable: false,
+            open: function () {
+                //Solution HERE
+                $(".ui-dialog-content").scrollTop(0);
+                //End of Solution
+            }
         });
       }
       var holdme;
