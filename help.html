@@ -62,7 +62,11 @@
       };
 
       function openDialog(metaData) {
-        //var metaData = getMetaData(which);
+        // close dialog if open to ensure proper load and scroll
+        if ($("#dialog").hasClass("ui-dialog-content") &&
+            $("#dialog").dialog("isOpen")) {
+            $('#dialog').dialog('close');
+        }
         var html = '<div class="data-cards">';
         html +=
           '<h1 style="width:100%; text-align: center;">' +
