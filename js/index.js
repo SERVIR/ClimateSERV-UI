@@ -13,7 +13,7 @@ function getItemHtml(item) {
     .replace("{imagesrc}", item.image.src)
     .replace("{imagealt}", "'" + item.image.alt + "'")
     .replaceAll("{buttontext}", item.button.text)
-    .replace("{metaid}", item.metedata )
+    .replace("{metaid}", item.metedata)
     .replace("{buttonlocation}", "'" + item.button.location + "'");
 }
 
@@ -46,9 +46,11 @@ function adjustCards() {
 /**
  * Calls adjustCards on any window resize
  */
-$(window).resize(function () {
-  adjustCards();
-});
+$(window)
+  .resize(function () {
+    adjustCards();
+  })
+  .resize();
 
 /**
  * Sets up the carousels and loads data into the teaser from the dataItems structure.
