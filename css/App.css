@@ -159,15 +159,15 @@ body {
 }
 
 .site-link {
-  color: #5980af;
+  color: #5980af!important;
   cursor: pointer;
 }
 
-.site-link[disabled] {
-  color: #3b6e22;
-  cursor: not-allowed;
-  font-weight: 600;
-}
+    .site-link[disabled] {
+        color: #3b6e22 !important;
+        cursor: not-allowed;
+        font-weight: 600;
+    }
 
 #servirmap {
   height: calc(100vh - 116px);
@@ -493,15 +493,15 @@ footer a {
   color: #ffffff;
 }
 
-footer a:hover,
-.site-link:hover {
-  color: #bdd12f;
-}
-.site-link:hover[disabled] {
-  color: #3b6e22;
-  cursor: not-allowed;
-  font-weight: 600;
-}
+    footer a:hover,
+    .site-link:hover {
+        color: #bdd12f !important;
+    }
+        .site-link:hover[disabled] {
+            color: #3b6e22 !important;
+            cursor: not-allowed;
+            font-weight: 600;
+        }
 
 .climate-copy {
   margin: 0;
